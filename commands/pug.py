@@ -216,7 +216,7 @@ async def pug(client, message):
         channel = client.get_channel(pugbot_channel)
 
     if message.channel != channel:
-        await client.send_message(message.channel, "I'm only allowed to talk in #%s - head over there" % str(channel))
+        await client.send_message(message.channel, "I'm only allowed to talk in "+channel.mention)
 
     try:
         i = str(message.content).split(' ')
