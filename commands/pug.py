@@ -167,7 +167,7 @@ def get_char(name, server, target_region):
     return_string += '```CSS\n'  # start Markdown
 
     # iLvL
-    return_string += "ILevel: %s equipped, %s bags\n" % (equipped_ivl, bags_ivl)
+    return_string += "Item Level: %s equipped, %s bags\n" % (equipped_ivl, bags_ivl)
 
     # achievements
     #return_string += "Achievements: %s\n" % "Keystone Master" if keystone_master else ""
