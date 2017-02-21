@@ -8,7 +8,6 @@ config = json.loads(open('config.json').read())  # Load Configs
 DISCORD_TOKEN = config["discord_token"]
 client = discord.Client()
 
-
 @client.event
 async def on_ready():
     print('Logged in as')

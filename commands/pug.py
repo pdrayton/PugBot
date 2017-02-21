@@ -13,6 +13,7 @@ ENCHANTABLE_SLOTS = ["neck", "back", "finger1", "finger2"]
 config = json.loads(open('config.json').read())  # Load Configs
 API_KEY = config["blizzard_api_key"]
 default_region = config["default_region"]
+pugbot_channel = config["pugbot_channel"]
 
 region_locale = {
     'us': ['us', 'en_US', 'en'],
@@ -209,6 +210,14 @@ def get_char(name, server, target_region):
 
 async def pug(client, message):
     target_region = default_region
+
+    channel = message.channel
+    if pugbot_channel is not None:
+        channel = client.get_channel(pugbot_channel)
+
+    if message.channel != channel:
+        await client.send_message(message.channel, "I'm only allowed to talk in #%s - head over there" % str(channel))
+
     try:
         i = str(message.content).split(' ')
         name = i[1]
@@ -216,9 +225,9 @@ async def pug(client, message):
         if len(i) == 4 and i[3].lower() in region_locale.keys():
             target_region = i[3].lower()
         character_info = get_char(name, server, target_region)
-        await client.send_message(message.channel, character_info)
+        await client.send_message(channel, character_info)
     except Exception as e:
         print(e)
-        await client.send_message(message.channel, "Error With Name or Server\n"
-                                                   "Use: !pug <name> <server> <region>\n"
-                                                   "Hyphenate Two Word Servers (Ex: Twisting-Nether)")
+        await client.send_message(channel, "Error With Name or Server\n"
+                                            "Use: !pug <name> <server> <region>\n"
+                                            "Hyphenate Two Word Servers (Ex: Twisting-Nether)")
