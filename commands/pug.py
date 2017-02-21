@@ -100,6 +100,7 @@ def get_mythic_progression(player_dictionary):
     plus_two = 0
     plus_five = 0
     plus_ten = 0
+    plus_fifteen = 0
 
     if 33096 in achievements["criteria"]:
         index = achievements["criteria"].index(33096)
@@ -113,12 +114,20 @@ def get_mythic_progression(player_dictionary):
         index = achievements["criteria"].index(33098)
         plus_ten = achievements["criteriaQuantity"][index]
 
+    if 32028 in achievements["criteria"]:
+        index = achievements["criteria"].index(32028)
+        plus_fifteen = achievements["criteriaQuantity"][index]
+
     return {
         "plus_two": plus_two,
         "plus_five": plus_five,
-        "plus_ten": plus_ten
+        "plus_ten": plus_ten,
+        "plus_fifteen": plus_fifteen
     }
 
+def has_achievement(player_dictionary, id):
+    achievements = player_dictionary["achievements"]
+    return id in achievements["achievementsCompleted"]
 
 def get_char(name, server, target_region):
     r = requests.get("https://%s.api.battle.net/wow/character/%s/%s?fields=items+progression+achievements&locale=%s&apikey=%s" % (
@@ -138,10 +147,13 @@ def get_char(name, server, target_region):
     class_dict = {c['id']: c['name'] for c in class_dict["classes"]}
 
     equipped_ivl = player_dict["items"]["averageItemLevelEquipped"]
+    bags_ivl = player_dict["items"]["averageItemLevel"]
     sockets = get_sockets(player_dict)
     enchants = get_enchants(player_dict)
+    keystone_master = has_achievement(player_dict, 11162)
     tov_progress = get_raid_progression(player_dict, "Trial of Valor")
     en_progress = get_raid_progression(player_dict, "The Emerald Nightmare")
+    nh_progress = get_raid_progression(player_dict, "The Nighthold")
     mythic_progress = get_mythic_progression(player_dict)
 
     armory_url = 'http://{}.battle.net/wow/{}/character/{}/{}/advanced'.format(
@@ -154,25 +166,34 @@ def get_char(name, server, target_region):
     return_string += '```CSS\n'  # start Markdown
 
     # iLvL
-    return_string += "Equipped Item Level: %s\n" % equipped_ivl
+    return_string += "ILevel: %s equipped, %s bags\n" % (equipped_ivl, bags_ivl)
 
-    # Mythic Progression
-    return_string += "Mythics: +2: %s, +5: %s, +10: %s\n" % (mythic_progress["plus_two"],
+    # achievements
+    #return_string += "Achievements: %s\n" % "Keystone Master" if keystone_master else ""
+
+    # Mythic+ Progression
+    return_string += "Mythic+: +2: %s, +5: %s, +10: %s, +15: %s" % (mythic_progress["plus_two"],
                                                              mythic_progress["plus_five"],
-                                                             mythic_progress["plus_ten"])
+                                                             mythic_progress["plus_ten"],
+                                                             mythic_progress["plus_fifteen"])
+    return_string += " (Keystone Master)\n" if keystone_master else "\n"
 
     # Raid Progression
-    return_string += "EN: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(en_progress["total_bosses"],
-                                                                          en_progress["normal"],
-                                                                          en_progress["heroic"],
-                                                                          en_progress["mythic"])
+    return_string += "NH: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(nh_progress["total_bosses"],
+                                                                           nh_progress["normal"],
+                                                                           nh_progress["heroic"],
+                                                                           nh_progress["mythic"])
     return_string += "TOV: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(tov_progress["total_bosses"],
                                                                            tov_progress["normal"],
                                                                            tov_progress["heroic"],
                                                                            tov_progress["mythic"])
+    return_string += "EN: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(en_progress["total_bosses"],
+                                                                          en_progress["normal"],
+                                                                          en_progress["heroic"],
+                                                                          en_progress["mythic"])
 
     # Gems
-    return_string += "Gems Equipped: %s/%s\n" % (
+    return_string += "Gems: %s/%s, " % (
         sockets["equipped_gems"], sockets["total_sockets"])
 
     # Enchants
