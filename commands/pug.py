@@ -74,7 +74,6 @@ def get_enchants(player_dictionary):
         "total_missing": len(missing_enchant_slots)
     }
 
-
 def get_raid_progression(player_dictionary, raid):
     r = [x for x in player_dictionary["progression"]
     ["raids"] if x["name"] in raid][0]
@@ -94,7 +93,6 @@ def get_raid_progression(player_dictionary, raid):
             "heroic": heroic,
             "mythic": mythic,
             "total_bosses": len(r["bosses"])}
-
 
 def get_mythic_progression(player_dictionary):
     achievements = player_dictionary["achievements"]
@@ -155,6 +153,7 @@ def get_char(name, server, target_region):
     tov_progress = get_raid_progression(player_dict, "Trial of Valor")
     en_progress = get_raid_progression(player_dict, "The Emerald Nightmare")
     nh_progress = get_raid_progression(player_dict, "The Nighthold")
+    nighthold_aotc = has_achievement(player_dict, 11195)
     mythic_progress = get_mythic_progression(player_dict)
 
     armory_url = 'http://{}.battle.net/wow/{}/character/{}/{}/advanced'.format(
@@ -169,9 +168,6 @@ def get_char(name, server, target_region):
     # iLvL
     return_string += "Item Level: %s equipped, %s bags\n" % (equipped_ivl, bags_ivl)
 
-    # achievements
-    #return_string += "Achievements: %s\n" % "Keystone Master" if keystone_master else ""
-
     # Mythic+ Progression
     return_string += "Mythic+: +2: %s, +5: %s, +10: %s, +15: %s" % (mythic_progress["plus_two"],
                                                              mythic_progress["plus_five"],
@@ -180,10 +176,11 @@ def get_char(name, server, target_region):
     return_string += " (Keystone Master)\n" if keystone_master else "\n"
 
     # Raid Progression
-    return_string += "NH: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(nh_progress["total_bosses"],
+    return_string += "NH: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)".format(nh_progress["total_bosses"],
                                                                            nh_progress["normal"],
                                                                            nh_progress["heroic"],
                                                                            nh_progress["mythic"])
+    return_string += " (Ahead of the Curve)\n" if keystone_master else "\n"                                                                           
     return_string += "TOV: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(tov_progress["total_bosses"],
                                                                            tov_progress["normal"],
                                                                            tov_progress["heroic"],
