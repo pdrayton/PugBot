@@ -1,5 +1,5 @@
 import json
-
+import discord
 import requests
 
 LEG_WITH_SOCKET = [
@@ -21,6 +21,10 @@ region_locale = {
 #    'tw': ['tw', 'zh_TW', 'zh'],
     'eu': ['eu', 'en_GB', 'en']
 }
+
+def get_talent_spec(player_dictionary):
+    r = [item['spec']['name'] for item in player_dictionary['talents'] if item["selected"] ]
+    return r
 
 def get_sockets(player_dictionary):
     """
@@ -129,7 +133,7 @@ def has_achievement(player_dictionary, id):
     return id in achievements["achievementsCompleted"]
 
 def get_char(name, server, target_region):
-    r = requests.get("https://%s.api.battle.net/wow/character/%s/%s?fields=items+progression+achievements&locale=%s&apikey=%s" % (
+    r = requests.get("https://%s.api.battle.net/wow/character/%s/%s?fields=items+progression+achievements+talents&locale=%s&apikey=%s" % (
             region_locale[target_region][0], server, name, region_locale[target_region][1], API_KEY))
     
     if r.status_code != 200:
@@ -180,7 +184,7 @@ def get_char(name, server, target_region):
                                                                            nh_progress["normal"],
                                                                            nh_progress["heroic"],
                                                                            nh_progress["mythic"])
-    return_string += " (Ahead of the Curve)\n" if keystone_master else "\n"                                                                           
+    return_string += " (Ahead of the Curve)\n" if nighthold_aotc else "\n"                                                                           
     return_string += "TOV: {1}/{0} (N), {2}/{0} (H), {3}/{0} (M)\n".format(tov_progress["total_bosses"],
                                                                            tov_progress["normal"],
                                                                            tov_progress["heroic"],
@@ -210,7 +214,7 @@ async def pug(client, message):
 
     channel = message.channel
     if pugbot_channel is not None:
-        channel = client.get_channel(pugbot_channel)
+        channel = discord.utils.get(channel.server.channels, name=pugbot_channel)
 
     if message.channel != channel:
         await client.send_message(message.channel, "I'm only allowed to talk in "+channel.mention)
