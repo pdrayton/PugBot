@@ -133,6 +133,8 @@ def has_achievement(player_dictionary, id):
     return id in achievements["achievementsCompleted"]
 
 def get_char(name, server, target_region):
+    print ('Looking up {0} on {1}.'.format(name, server))
+
     r = requests.get("https://%s.api.battle.net/wow/character/%s/%s?fields=items+progression+achievements+talents&locale=%s&apikey=%s" % (
             region_locale[target_region][0], server, name, region_locale[target_region][1], API_KEY))
     
