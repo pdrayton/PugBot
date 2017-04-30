@@ -1,6 +1,7 @@
 import json
 import discord
 import requests
+import re
 
 LEG_WITH_SOCKET = [
     132369, 132410, 137044, 132444, 132449, 132452, 132460, 133973, 133974, 137037, 137038, 137039, 137040,
@@ -165,10 +166,14 @@ def get_char(name, server, target_region):
     armory_url = 'http://{}.battle.net/wow/{}/character/{}/{}/advanced'.format(
         region_locale[target_region][0], region_locale[target_region][2], server, name)
 
+    wowprogress_url = 'https://www.wowprogress.com/character/{}/{}/{}'.format(
+        target_region, re.sub('[ \']+', '-', server), name)
+
     return_string = ''
     return_string += "**%s** - **%s** - **%s %s**\n" % (
         name.title(), server.title(), player_dict['level'], class_dict[player_dict['class']])
     return_string += '<{}>\n'.format(armory_url)
+    return_string += '<{}>\n'.format(wowprogress_url)
     return_string += '```CSS\n'  # start Markdown
 
     # iLvL
